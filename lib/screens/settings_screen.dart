@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/app_scaffold.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -42,8 +44,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+    return AppScaffold(
+      title: 'Settings',
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -52,56 +54,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _opacity, 
             0.1, 
             1.0, 
-            (val) {
-              setState(() => _opacity = val);
-            },
+            (val) => setState(() => _opacity = val),
             (val) => _saveDouble('panel_opacity', val),
+            100,
           ),
-          const Divider(),
+          const Divider(color: Color(0x33FFFFFF)),
           _buildSlider(
             'Icon Size', 
             _size, 
             30.0, 
             100.0, 
-            (val) {
-              setState(() => _size = val);
-            },
+            (val) => setState(() => _size = val),
             (val) => _saveDouble('panel_size', val),
+            200,
           ),
-          const Divider(),
+          const Divider(color: Color(0x33FFFFFF)),
           SwitchListTile(
-            title: const Text('Auto-start on Boot'),
-            subtitle: const Text('Automatically launch the floating icon when device restarts.'),
+            title: const Text('Auto-start on Boot', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('Automatically launch the floating icon when device restarts.', style: TextStyle(color: Color(0xFF94A3B8))),
             value: _autoStart,
             onChanged: (val) {
               setState(() => _autoStart = val);
               _saveBool('auto_start', val);
             },
             activeColor: Theme.of(context).colorScheme.primary,
-          ),
-          const Divider(),
+          ).animate(delay: 300.ms).fade().slideX(begin: 0.1),
+          const Divider(color: Color(0x33FFFFFF)),
           SwitchListTile(
-            title: const Text('Single Tap to Open'),
-            subtitle: const Text('Open the panel with a single tap instead of double tap.'),
+            title: const Text('Single Tap to Open', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('Open the panel with a single tap instead of double tap.', style: TextStyle(color: Color(0xFF94A3B8))),
             value: _singleTapAction,
             onChanged: (val) {
               setState(() => _singleTapAction = val);
               _saveBool('single_tap', val);
             },
             activeColor: Theme.of(context).colorScheme.primary,
-          ),
+          ).animate(delay: 400.ms).fade().slideX(begin: 0.1),
         ],
       ),
     );
   }
 
-  Widget _buildSlider(String title, double value, double min, double max, ValueChanged<double> onChanged, ValueChanged<double> onChangeEnd) {
+  Widget _buildSlider(String title, double value, double min, double max, ValueChanged<double> onChanged, ValueChanged<double> onChangeEnd, int delayMs) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white)),
           Row(
             children: [
               Expanded(
@@ -113,13 +113,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: value.toStringAsFixed(2),
                   onChanged: onChanged,
                   onChangeEnd: onChangeEnd,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  inactiveColor: const Color(0x33FFFFFF),
                 ),
               ),
-              Text(value.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(value.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
             ],
           ),
         ],
       ),
-    );
+    ).animate(delay: delayMs.ms).fade().slideX(begin: 0.1);
   }
 }

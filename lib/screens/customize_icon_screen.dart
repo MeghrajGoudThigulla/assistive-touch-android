@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/app_scaffold.dart';
 
 class CustomizeIconScreen extends StatefulWidget {
   const CustomizeIconScreen({super.key});
@@ -48,16 +50,17 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Customize Icon')),
+    return AppScaffold(
+      title: 'Customize Icon',
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const Text(
               'Choose the floating button icon for Assistive Touch.',
-              style: TextStyle(fontSize: 16),
-            ),
+              style: TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+              textAlign: TextAlign.center,
+            ).animate().fade().slideY(begin: -0.1),
             const SizedBox(height: 24),
             Expanded(
               child: GridView.builder(
@@ -77,13 +80,15 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isSelected 
-                            ? Theme.of(context).colorScheme.primaryContainer 
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: isSelected ? Theme.of(context).colorScheme.primary : const Color(0x1AFFFFFF),
                         borderRadius: BorderRadius.circular(16),
-                        border: isSelected 
-                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
-                            : null,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x40000000),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -91,24 +96,20 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
                           Icon(
                             iconData['icon'], 
                             size: 48,
-                            color: isSelected 
-                                ? Theme.of(context).colorScheme.onPrimaryContainer
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Colors.white,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             iconData['label'],
                             style: TextStyle(
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Colors.white,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  );
+                  ).animate(delay: (index * 50).ms).scale(curve: Curves.easeOutBack);
                 },
               ),
             ),

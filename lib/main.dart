@@ -24,19 +24,31 @@ class AssistiveTouchApp extends StatelessWidget {
     return MaterialApp(
       title: 'Assistive Touch',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueAccent, 
-          brightness: Brightness.dark,
-        ),
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF3B82F6), // Blue 500
+          onPrimary: Colors.white,
+          surface: Color(0xFF0F172A),
+          onSurface: Colors.white,
+        ),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.white),
+          bodySmall: TextStyle(color: Color(0xFF94A3B8)), // Slate 400
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+        ),
       ),
       initialRoute: hasSelectedLang ? '/home' : '/language',
       routes: {
-        '/language': (context) => LanguageSelectionScreen(),
-        '/home': (context) => HomeScreen(),
-        '/customize_panel': (context) => CustomizePanelScreen(),
-        '/customize_icon': (context) => CustomizeIconScreen(),
-        '/settings': (context) => SettingsScreen(),
+        '/language': (context) => const LanguageSelectionScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/customize_panel': (context) => const CustomizePanelScreen(),
+        '/customize_icon': (context) => const CustomizeIconScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

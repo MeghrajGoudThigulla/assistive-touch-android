@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/app_scaffold.dart';
 
 class CustomizePanelScreen extends StatefulWidget {
   const CustomizePanelScreen({super.key});
@@ -18,29 +20,30 @@ class _CustomizePanelScreenState extends State<CustomizePanelScreen> {
 
   final List<String> page2Actions = [
     'Notifications', 'Quick Settings', 'Power Dialog',
-    'Split Screen', 'Brightness Up', 'Brightness Down',
+    'Split', 'Brightness Up', 'Brightness Down',
     'None', 'None', 'None'
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Customize Panel')),
+    return AppScaffold(
+      title: 'Customize Panel',
       body: Column(
         children: [
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
               'Swipe to manage both pages of your floating panel. Tap a slot to reassign an action.',
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)), // Slate 400
+              textAlign: TextAlign.center,
             ),
-          ),
+          ).animate().fade().slideY(begin: -0.1),
           Expanded(
             child: PageView(
               controller: _pageController,
               children: [
-                _buildGrid(page1Actions, 'Page 1'),
-                _buildGrid(page2Actions, 'Page 2'),
+                _buildGrid(page1Actions, 'Page 1', 100),
+                _buildGrid(page2Actions, 'Page 2', 200),
               ],
             ),
           ),
@@ -49,17 +52,24 @@ class _CustomizePanelScreenState extends State<CustomizePanelScreen> {
     );
   }
 
-  Widget _buildGrid(List<String> actions, String title) {
+  Widget _buildGrid(List<String> actions, String title, int delayMs) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
         const SizedBox(height: 24),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest ?? Theme.of(context).colorScheme.surfaceContainer,
+            color: const Color(0x1AFFFFFF),
             borderRadius: BorderRadius.circular(24),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x40000000), // rgba(0,0,0,0.25)
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           padding: const EdgeInsets.all(24),
           child: GridView.builder(
@@ -73,18 +83,18 @@ class _CustomizePanelScreenState extends State<CustomizePanelScreen> {
             ),
             itemBuilder: (context, index) {
               return Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                decoration: const BoxDecoration(
+                  color: Color(0x33FFFFFF),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: Text(
                     actions[index].split(' ').join('\n'), 
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
                     textAlign: TextAlign.center,
                   ),
                 ),
-              );
+              ).animate(delay: (delayMs + index * 50).ms).scale(curve: Curves.easeOutBack);
             },
           ),
         ),
