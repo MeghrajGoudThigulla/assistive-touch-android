@@ -1,13 +1,13 @@
-# Phase 2 Implementation Plan: Native Android Layer & Bridge
+# Phase 2 - Step 2: Overlay UI & Event Channels
 
 **1. Understand:**
-Our goal is to wire the Flutter UI to the native Android ForegroundService capable of rendering `SYSTEM_ALERT_WINDOW` overlays. We need the `FloatingService` to run autonomously alongside the `MainActivity`, persisting through a Notification Channel as mandated by Android 14.
+With the basic ForegroundService running, the native window overlay currently draws only a temporary blue box. To fulfill the MVP constraints of Phase 2, this Kotlin layer must read Flutter's SharedPreferences directly to apply the user's styled opacity, size, and icon constraints. Additionally, we must wire the `EventChannel` so that the native service can broadcast its real-time lifecycle states (started/stopped) back to the Flutter Home screen.
 
 **2. Plan:**
-- **Step 1:** Modify `AndroidManifest.xml` to declare the `FloatingService` with `foregroundServiceType="specialUse"`. Include the `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` metadata required for Android 14 Play Store compliance.
-- **Step 2:** Write `FloatingService.kt` with a basic Android `Service` implementation that registers a `NotificationChannel` and runs `startForeground()`.
-- **Step 3:** Hook up `MainActivity.kt` with the `MethodChannel` logic to process `overlay.start`, `overlay.stop`, and `permissions.getState`.
-- **Step 4:** Flesh out `lib/services/overlay_channel.dart` with statically typed wrapper methods for our Flutter UI.
+- **Step 1:** Create `FloatingButtonView.kt`, implementing a native `OnTouchListener`. This class will handle smooth dragging and edge-snapping on the screen using Android's `WindowManager.LayoutParams`.
+- **Step 2:** Update `FloatingService.kt` to instantiate `FloatingButtonView` instead of the dummy image. We will query Android's `SharedPreferences` (where Flutter prefixes keys with `flutter.`) to read `flutter.panel_size`, `flutter.panel_opacity`, and `flutter.floating_icon_id`.
+- **Step 3:** Introduce `EventChannel` mapping in `MainActivity.kt` and `FloatingService.kt`. The native layer will stream a payload like `{"event": "overlayStateChanged", "running": true}`.
+- **Step 4:** Modify `home_screen.dart` to subscribe to the `EventChannel` stream upon load, ensuring the "Service is active" CTA always faithfully matches the true OS service state.
 
 **3. Change:**
-(Implementation happening concurrently)
+(Pending user approval)

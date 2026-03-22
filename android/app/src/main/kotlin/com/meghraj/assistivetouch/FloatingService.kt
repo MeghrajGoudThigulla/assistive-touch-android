@@ -32,6 +32,11 @@ class FloatingService : Service() {
         startForeground(NOTIFICATION_ID, notification)
         
         initializeOverlay()
+
+        GlobalEventStream.sendEvent(mapOf(
+            "event" to "overlayStateChanged",
+            "running" to true
+        ))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -44,22 +49,15 @@ class FloatingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         cleanupOverlay()
+
+        GlobalEventStream.sendEvent(mapOf(
+            "event" to "overlayStateChanged",
+            "running" to false
+        ))
     }
 
     private fun initializeOverlay() {
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        
-        floatingView = FrameLayout(this).apply {
-            setBackgroundColor(Color.TRANSPARENT)
-            
-            // Basic MVP stub for the floating button
-            val iconView = ImageView(this@FloatingService).apply {
-                setImageResource(android.R.drawable.ic_menu_add)
-                setBackgroundColor(Color.parseColor("#3B82F6")) // PRD Blue 500
-            }
-            // 150px square for testing visibility
-            addView(iconView, FrameLayout.LayoutParams(150, 150))
-        }
 
         val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -75,10 +73,12 @@ class FloatingService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LOCAL_FOCUS_MODE,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.CENTER_VERTICAL or Gravity.END
+            gravity = Gravity.TOP or Gravity.START
             x = 0
-            y = 100
+            y = 500
         }
+
+        floatingView = FloatingButtonView(this, windowManager!!, params)
 
         windowManager?.addView(floatingView, params)
     }

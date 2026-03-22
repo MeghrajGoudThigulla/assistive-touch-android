@@ -8,6 +8,7 @@ import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.EventChannel
 
 class MainActivity: FlutterActivity() {
     private val METHOD_CHANNEL = "com.meghraj.assistivetouch/methods"
@@ -56,5 +57,17 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "com.meghraj.assistivetouch/events").setStreamHandler(
+            object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    GlobalEventStream.eventSink = events
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    GlobalEventStream.eventSink = null
+                }
+            }
+        )
     }
 }

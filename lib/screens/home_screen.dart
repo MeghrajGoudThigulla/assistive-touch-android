@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -13,6 +14,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isServiceRunning = false;
+  StreamSubscription? _overlaySub;
+
+  @override
+  void initState() {
+    super.initState();
+    _overlaySub = OverlayChannel.overlayEvents.listen((event) {
+      if (event != null && event['event'] == 'overlayStateChanged') {
+        setState(() {
+          _isServiceRunning = event['running'] == true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _overlaySub?.cancel();
+    super.dispose();
+  }
   
   Future<void> _toggleService() async {
     if (_isServiceRunning) {
