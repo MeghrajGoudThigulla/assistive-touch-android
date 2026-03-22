@@ -1,14 +1,13 @@
-# Phase 3 - Actions & Gestures
+# Phase 3 - Step 2: Panel Overlay Generation
 
 **1. Understand:**
-To execute powerful, global system commands (like navigating Home, Back, Recents, or dropping the Notification shade), Android mandates an `AccessibilityService`. The PRD places strict constraints on this service—specifically `canRetrieveWindowContent="false"`—guaranteeing no screen observation can technically occur, validating our core privacy pledge. We also need a strong routing object to digest string tokens into actions.
+When the user taps the floating button and its configured gesture matches `"open_menu"`, the WindowManager must overlay a non-focused, full-screen, dim-background FrameLayout. This overlay holds a `3x3` grid representing the configurable assistive interface.
 
 **2. Plan:**
-- **Step 1:** Implement `AssistiveAccessibilityService.kt`. It extends Android's native `AccessibilityService` but completely omits event tracking, only exposing robust bindings to `performGlobalAction()`.
-- **Step 2:** Write `res/xml/accessibility_service_config.xml` strictly deploying the PRD's exact XML metadata structure and referencing an exact `strings.xml` description to pass Play Store checks.
-- **Step 3:** Implement `ActionExecutor.kt` as an object router. When the Floating Button is tapped, it invokes `ActionExecutor.execute("open_menu")`. When a system action is invoked, it delegates to the Accessibility Service.
-- **Step 4:** Upgrade `AndroidManifest.xml` so the Play Console crawler appropriately recognizes the secure `.xml` configurations.
-- **Step 5:** Bind `FloatingButtonView.kt` to dynamically read the single-tap gesture config from Flutter's storage, defaulting to `"open_menu"`.
+- **Step 1:** Modify `ActionExecutor.kt` to trigger the panel launch natively using a direct API exposure (`FloatingService.instance?.openPanel()`).
+- **Step 2:** Implement `PanelOverlayView.kt`. This view generates an elegant rounded `3x3` grid dynamically assigning action labels (`home`, `back`, `lock_screen`, etc.) to cleanly designed Card-like containers using native Android Canvas colors `#1E293B` and `#33FFFFFF`.
+- **Step 3:** Update `FloatingService.kt` to securely govern the `panelView`. Toggling the panel mounts it within the `WindowManager` with `TYPE_APPLICATION_OVERLAY` full-screen parameters, and concurrently hides the floating button stub.
+- **Step 4:** Execute!
 
 **3. Change:**
-Executing now.
+(Implementation processed remotely via LLM)

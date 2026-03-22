@@ -15,18 +15,24 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
+import android.annotation.SuppressLint
 
 class FloatingService : Service() {
     companion object {
         const val CHANNEL_ID = "assistive_touch_foreground"
         const val NOTIFICATION_ID = 101
+        @SuppressLint("StaticFieldLeak")
+        var instance: FloatingService? = null
+            private set
     }
     
     private var windowManager: WindowManager? = null
     private var floatingView: FrameLayout? = null
+    private var panelView: PanelOverlayView? = null
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         createNotificationChannel()
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -49,6 +55,8 @@ class FloatingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         cleanupOverlay()
+        closePanel()
+        instance = null
 
         GlobalEventStream.sendEvent(mapOf(
             "event" to "overlayStateChanged",
@@ -88,6 +96,36 @@ class FloatingService : Service() {
             windowManager?.removeView(view)
         }
         floatingView = null
+    }
+
+    fun openPanel() {
+        if (panelView != null) return
+        val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            @Suppress("DEPRECATION")
+            WindowManager.LayoutParams.TYPE_PHONE
+        }
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            layoutFlag,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+
+        panelView = PanelOverlayView(this) { closePanel() }
+        windowManager?.addView(panelView, params)
+        floatingView?.visibility = android.view.View.GONE
+    }
+
+    fun closePanel() {
+        panelView?.let { view ->
+            windowManager?.removeView(view)
+        }
+        panelView = null
+        floatingView?.visibility = android.view.View.VISIBLE
     }
 
     private fun createNotificationChannel() {

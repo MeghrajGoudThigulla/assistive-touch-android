@@ -16,9 +16,7 @@ object ActionExecutor {
                 }
             }
             "open_menu" -> {
-                // TODO (Phase 3 step 2): Mount the PanelOverlayView
-                Toast.makeText(context, "Panel menu UI coming soon!", Toast.LENGTH_SHORT).show()
-                GlobalEventStream.sendEvent(mapOf("event" to "openMenuRequested"))
+                FloatingService.instance?.openPanel()
             }
             "none" -> {
                 // Deliberate no-op
