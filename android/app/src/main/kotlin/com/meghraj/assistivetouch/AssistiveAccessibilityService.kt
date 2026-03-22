@@ -1,9 +1,45 @@
 package com.meghraj.assistivetouch
 
 import android.accessibilityservice.AccessibilityService
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
 class AssistiveAccessibilityService : AccessibilityService() {
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
-    override fun onInterrupt() {}
+
+    companion object {
+        var instance: AssistiveAccessibilityService? = null
+            private set
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
+        Log.i("AssistiveAccessibility", "Accessibility Service securely connected")
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        // By design (PRD Principle): We do not monitor UI events or track user behavior.
+    }
+
+    override fun onInterrupt() {
+        // System interrupt wrapper handle
+    }
+
+    override fun onUnbind(intent: android.content.Intent?): Boolean {
+        instance = null
+        return super.onUnbind(intent)
+    }
+
+    fun performAction(actionId: String): Boolean {
+        return when (actionId) {
+            "home" -> performGlobalAction(GLOBAL_ACTION_HOME)
+            "back" -> performGlobalAction(GLOBAL_ACTION_BACK)
+            "recents" -> performGlobalAction(GLOBAL_ACTION_RECENTS)
+            "notifications" -> performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+            "power_dialog" -> performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
+            "quick_settings" -> performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+            // Other actions like swipe gestures will map here as needed
+            else -> false
+        }
+    }
 }

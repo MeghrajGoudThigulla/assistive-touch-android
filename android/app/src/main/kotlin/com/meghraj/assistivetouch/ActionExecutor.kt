@@ -1,3 +1,31 @@
 package com.meghraj.assistivetouch
 
-class ActionExecutor {}
+import android.content.Context
+import android.widget.Toast
+
+object ActionExecutor {
+    // Single source of truth for translating a string action-ID to a system intent.
+    fun execute(context: Context, actionId: String) {
+        when (actionId) {
+            "home", "back", "recents", "notifications", "power_dialog", "quick_settings" -> {
+                val service = AssistiveAccessibilityService.instance
+                if (service != null && service.performAction(actionId)) {
+                    // Successfully delegated to accessibility layer
+                } else {
+                    Toast.makeText(context, "Accessibility Service is not enabled.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            "open_menu" -> {
+                // TODO (Phase 3 step 2): Mount the PanelOverlayView
+                Toast.makeText(context, "Panel menu UI coming soon!", Toast.LENGTH_SHORT).show()
+                GlobalEventStream.sendEvent(mapOf("event" to "openMenuRequested"))
+            }
+            "none" -> {
+                // Deliberate no-op
+            }
+            else -> {
+                Toast.makeText(context, "Action: $actionId is unimplemented", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}

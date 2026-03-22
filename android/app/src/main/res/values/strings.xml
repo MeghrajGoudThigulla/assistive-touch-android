@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_description">This app uses the Accessibility Service API to provide assistive touch functionality, including virtual navigation buttons (Home, Back, Recents), quick access to system panels (Notifications, Quick Settings, Power dialog), and customisable gesture actions. The Accessibility Service is used strictly to perform user-initiated actions selected through the app\'s floating touch panel or gesture settings. The app does not collect, store, transmit, or share any personal or sensitive user data.</string>
+</resources>

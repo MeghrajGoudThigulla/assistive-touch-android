@@ -98,8 +98,12 @@ class FloatingButtonView(
 
     override fun performClick(): Boolean {
         super.performClick()
-        // Phase 3: Open Customize Panel. For now, testing the channel response stream.
-        GlobalEventStream.sendEvent(mapOf("event" to "buttonClicked"))
+        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        
+        // Flutter saves strings appropriately. Default to opening the panel.
+        val singleTapAction = prefs.getString("flutter.gesture.singleTap", "open_menu") ?: "open_menu"
+        
+        ActionExecutor.execute(context, singleTapAction)
         return true
     }
 

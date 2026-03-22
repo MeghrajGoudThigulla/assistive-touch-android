@@ -1,13 +1,14 @@
-# Phase 2 - Step 2: Overlay UI & Event Channels
+# Phase 3 - Actions & Gestures
 
 **1. Understand:**
-With the basic ForegroundService running, the native window overlay currently draws only a temporary blue box. To fulfill the MVP constraints of Phase 2, this Kotlin layer must read Flutter's SharedPreferences directly to apply the user's styled opacity, size, and icon constraints. Additionally, we must wire the `EventChannel` so that the native service can broadcast its real-time lifecycle states (started/stopped) back to the Flutter Home screen.
+To execute powerful, global system commands (like navigating Home, Back, Recents, or dropping the Notification shade), Android mandates an `AccessibilityService`. The PRD places strict constraints on this service—specifically `canRetrieveWindowContent="false"`—guaranteeing no screen observation can technically occur, validating our core privacy pledge. We also need a strong routing object to digest string tokens into actions.
 
 **2. Plan:**
-- **Step 1:** Create `FloatingButtonView.kt`, implementing a native `OnTouchListener`. This class will handle smooth dragging and edge-snapping on the screen using Android's `WindowManager.LayoutParams`.
-- **Step 2:** Update `FloatingService.kt` to instantiate `FloatingButtonView` instead of the dummy image. We will query Android's `SharedPreferences` (where Flutter prefixes keys with `flutter.`) to read `flutter.panel_size`, `flutter.panel_opacity`, and `flutter.floating_icon_id`.
-- **Step 3:** Introduce `EventChannel` mapping in `MainActivity.kt` and `FloatingService.kt`. The native layer will stream a payload like `{"event": "overlayStateChanged", "running": true}`.
-- **Step 4:** Modify `home_screen.dart` to subscribe to the `EventChannel` stream upon load, ensuring the "Service is active" CTA always faithfully matches the true OS service state.
+- **Step 1:** Implement `AssistiveAccessibilityService.kt`. It extends Android's native `AccessibilityService` but completely omits event tracking, only exposing robust bindings to `performGlobalAction()`.
+- **Step 2:** Write `res/xml/accessibility_service_config.xml` strictly deploying the PRD's exact XML metadata structure and referencing an exact `strings.xml` description to pass Play Store checks.
+- **Step 3:** Implement `ActionExecutor.kt` as an object router. When the Floating Button is tapped, it invokes `ActionExecutor.execute("open_menu")`. When a system action is invoked, it delegates to the Accessibility Service.
+- **Step 4:** Upgrade `AndroidManifest.xml` so the Play Console crawler appropriately recognizes the secure `.xml` configurations.
+- **Step 5:** Bind `FloatingButtonView.kt` to dynamically read the single-tap gesture config from Flutter's storage, defaulting to `"open_menu"`.
 
 **3. Change:**
-(Pending user approval)
+Executing now.
