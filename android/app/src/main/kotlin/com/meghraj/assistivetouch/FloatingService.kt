@@ -29,6 +29,8 @@ class FloatingService : Service() {
     private var windowManager: WindowManager? = null
     private var floatingView: FrameLayout? = null
     private var panelView: PanelOverlayView? = null
+    private var lastX = 0
+    private var lastY = 500
 
     override fun onCreate() {
         super.onCreate()
@@ -82,8 +84,8 @@ class FloatingService : Service() {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = 0
-            y = 500
+            x = lastX
+            y = lastY
         }
 
         floatingView = FloatingButtonView(this, windowManager!!, params)
@@ -126,6 +128,15 @@ class FloatingService : Service() {
         }
         panelView = null
         floatingView?.visibility = android.view.View.VISIBLE
+    }
+
+    fun refreshConfig() {
+        if (floatingView != null && panelView == null) {
+            lastX = (floatingView?.layoutParams as? WindowManager.LayoutParams)?.x ?: 0
+            lastY = (floatingView?.layoutParams as? WindowManager.LayoutParams)?.y ?: 500
+            cleanupOverlay()
+            initializeOverlay()
+        }
     }
 
     private fun createNotificationChannel() {

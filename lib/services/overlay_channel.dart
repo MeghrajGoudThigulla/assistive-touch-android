@@ -26,6 +26,14 @@ class OverlayChannel {
     }
   }
 
+  static Future<void> updateConfig() async {
+    try {
+      await _methodChannel.invokeMethod('overlay.updateConfig');
+    } on PlatformException catch (e) {
+      print("Failed to update overlay config: '${e.message}'.");
+    }
+  }
+
   // --- Permissions Actions ---
 
   static Future<Map<dynamic, dynamic>> getPermissionState() async {

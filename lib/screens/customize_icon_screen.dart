@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/app_scaffold.dart';
+import '../services/overlay_channel.dart';
 
 class CustomizeIconScreen extends StatefulWidget {
   const CustomizeIconScreen({super.key});
@@ -41,6 +42,9 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
     setState(() {
       _selectedIcon = id;
     });
+
+    await OverlayChannel.updateConfig();
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Icon saved successfully')),

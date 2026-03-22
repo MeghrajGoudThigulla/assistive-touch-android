@@ -31,6 +31,10 @@ class MainActivity: FlutterActivity() {
                     stopService(Intent(this, FloatingService::class.java))
                     result.success(true)
                 }
+                "overlay.updateConfig" -> {
+                    FloatingService.instance?.refreshConfig()
+                    result.success(true)
+                }
                 "permissions.getState" -> {
                     val overlayGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         Settings.canDrawOverlays(this)

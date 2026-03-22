@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/app_scaffold.dart';
+import '../services/overlay_channel.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,11 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveDouble(String key, double value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(key, value);
+    await OverlayChannel.updateConfig();
   }
 
   Future<void> _saveBool(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+    await OverlayChannel.updateConfig();
   }
 
   @override
