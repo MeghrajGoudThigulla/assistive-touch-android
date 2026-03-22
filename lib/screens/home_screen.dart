@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/app_scaffold.dart';
+import '../services/overlay_channel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,11 +14,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isServiceRunning = false;
   
-  void _toggleService() {
-    // Phase 2 will call MethodChannel to start/stop the service layer.
-    setState(() {
-      _isServiceRunning = !_isServiceRunning;
-    });
+  Future<void> _toggleService() async {
+    if (_isServiceRunning) {
+      await OverlayChannel.stopOverlay();
+      setState(() {
+        _isServiceRunning = false;
+      });
+    } else {
+      final state = await OverlayChannel.getPermissionState();
+      if (state['overlay'] != true) {
+        if (mounted) Navigator.pushNamed(context, '/permissions');
+        return;
+      }
+      
+      final success = await OverlayChannel.startOverlay();
+      // success gives true if service started
+      setState(() {
+        _isServiceRunning = success;
+      });
+    }
   }
 
   Future<void> _launchEmail() async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/app_scaffold.dart';
+import '../services/overlay_channel.dart';
 
 class PermissionGuidanceScreen extends StatefulWidget {
   const PermissionGuidanceScreen({super.key});
@@ -10,17 +11,48 @@ class PermissionGuidanceScreen extends StatefulWidget {
   State<PermissionGuidanceScreen> createState() => _PermissionGuidanceScreenState();
 }
 
-class _PermissionGuidanceScreenState extends State<PermissionGuidanceScreen> {
-  Future<void> _grantPermission() async {
-    // Phase 2 will wrap this in a MethodChannel call and await result:
-    // await OverlayChannel.openOverlaySettings();
-    
-    // For Phase 1 Flutter UI, we simulate success and set the flag:
+class _PermissionGuidanceScreenState extends State<PermissionGuidanceScreen> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkIfGrantedAutomatically();
+    }
+  }
+
+  Future<void> _checkIfGrantedAutomatically() async {
+    final state = await OverlayChannel.getPermissionState();
+    if (state['overlay'] == true) {
+      await _completeFlow();
+    }
+  }
+
+  Future<void> _completeFlow() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_completed', true);
-    
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed('/home');
+  }
+
+  Future<void> _grantPermission() async {
+    final state = await OverlayChannel.getPermissionState();
+    if (state['overlay'] == true) {
+      await _completeFlow();
+      return;
+    }
+    await OverlayChannel.openOverlaySettings();
   }
 
   @override
