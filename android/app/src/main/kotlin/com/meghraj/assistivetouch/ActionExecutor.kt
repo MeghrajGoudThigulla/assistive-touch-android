@@ -15,6 +15,10 @@ object ActionExecutor {
                     Toast.makeText(context, "Accessibility Service is not enabled.", Toast.LENGTH_SHORT).show()
                 }
             }
+            "volume_up", "volume_down", "lock_screen", "flashlight", "screenshot" -> {
+                // TODO (Phase 4): System API wrappers for Root/Audio services
+                Toast.makeText(context, "$actionId requires expanded privileges!", Toast.LENGTH_SHORT).show()
+            }
             "open_menu" -> {
                 FloatingService.instance?.openPanel()
             }

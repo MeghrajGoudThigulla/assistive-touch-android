@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -27,6 +28,30 @@ class FloatingButtonView(
     private var initialTouchY = 0f
     private var isDragging = false
 
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            val action = getGestureAction("singleTap", "open_menu")
+            ActionExecutor.execute(context, action)
+            return true
+        }
+
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            val action = getGestureAction("doubleTap", "recents")
+            ActionExecutor.execute(context, action)
+            return true
+        }
+
+        override fun onLongPress(e: MotionEvent) {
+            val action = getGestureAction("longPress", "none")
+            ActionExecutor.execute(context, action)
+        }
+    })
+
+    private fun getGestureAction(key: String, default: String): String {
+        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        return prefs.getString("flutter.gesture.$key", default) ?: default
+    }
+
     init {
         val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
 
@@ -43,7 +68,7 @@ class FloatingButtonView(
 
         iconView = ImageView(context).apply {
             when(iconId) {
-                "circle" -> setImageResource(android.R.drawable.presence_online) // Built-in primitive proxy
+                "circle" -> setImageResource(android.R.drawable.presence_online)
                 "star" -> setImageResource(android.R.drawable.btn_star_big_on)
                 "default" -> setImageResource(android.R.drawable.ic_menu_add)
                 else -> setImageResource(android.R.drawable.ic_menu_add)
@@ -52,13 +77,16 @@ class FloatingButtonView(
             
             val shape = GradientDrawable()
             shape.shape = GradientDrawable.OVAL
-            shape.setColor(Color.parseColor("#3B82F6")) // PRD strict Accent Blue
+            shape.setColor(Color.parseColor("#3B82F6"))
             background = shape
         }
 
         addView(iconView, LayoutParams(sizePx, sizePx))
 
         setOnTouchListener { _, event ->
+            // Route structural taps sequentially into GestureDetector
+            gestureDetector.onTouchEvent(event)
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = layoutParams.x
@@ -72,6 +100,7 @@ class FloatingButtonView(
                     val dx = event.rawX - initialTouchX
                     val dy = event.rawY - initialTouchY
 
+                    // Touch slop explicitly mapped to 10 pixels for drag distinction securely
                     if (abs(dx) > 10 || abs(dy) > 10) {
                         isDragging = true
                     }
@@ -86,8 +115,6 @@ class FloatingButtonView(
                 MotionEvent.ACTION_UP -> {
                     if (isDragging) {
                         snapToEdge()
-                    } else {
-                        performClick()
                     }
                     true
                 }
@@ -96,22 +123,10 @@ class FloatingButtonView(
         }
     }
 
-    override fun performClick(): Boolean {
-        super.performClick()
-        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
-        
-        // Flutter saves strings appropriately. Default to opening the panel.
-        val singleTapAction = prefs.getString("flutter.gesture.singleTap", "open_menu") ?: "open_menu"
-        
-        ActionExecutor.execute(context, singleTapAction)
-        return true
-    }
-
     private fun snapToEdge() {
         val screenWidth = context.resources.displayMetrics.widthPixels
         val currentX = layoutParams.x
 
-        // Evaluate snap target (0 = left, screenWidth = right)
         val targetX = if (currentX + (width / 2) < screenWidth / 2) {
             0
         } else {

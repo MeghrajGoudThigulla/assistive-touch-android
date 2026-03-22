@@ -1,13 +1,12 @@
-# Phase 3 - Step 2: Panel Overlay Generation
+# Phase 3 - Step 3: Gestures & Multi-Page Menu
 
 **1. Understand:**
-When the user taps the floating button and its configured gesture matches `"open_menu"`, the WindowManager must overlay a non-focused, full-screen, dim-background FrameLayout. This overlay holds a `3x3` grid representing the configurable assistive interface.
+To finish off the critical Phase 3 PRD goals, the Assistive UI needs robust interaction capabilities beyond a single tap. The floating button should recognize double-taps and long-presses based securely on user configs. Concurrently, the 3x3 menu needs to handle its overflow constraints. Since AssistiveTouch has up to 18 native targets mapped (Main + Setting), the PanelOverlayView must elegantly transition between Page 1 and Page 2.
 
 **2. Plan:**
-- **Step 1:** Modify `ActionExecutor.kt` to trigger the panel launch natively using a direct API exposure (`FloatingService.instance?.openPanel()`).
-- **Step 2:** Implement `PanelOverlayView.kt`. This view generates an elegant rounded `3x3` grid dynamically assigning action labels (`home`, `back`, `lock_screen`, etc.) to cleanly designed Card-like containers using native Android Canvas colors `#1E293B` and `#33FFFFFF`.
-- **Step 3:** Update `FloatingService.kt` to securely govern the `panelView`. Toggling the panel mounts it within the `WindowManager` with `TYPE_APPLICATION_OVERLAY` full-screen parameters, and concurrently hides the floating button stub.
-- **Step 4:** Execute!
+- **Step 1:** Erase simple `.setOnClickListener` logic in `FloatingButtonView.kt` and integrate a native Android `GestureDetector.SimpleOnGestureListener`. Delegate `.onSingleTapConfirmed`, `.onDoubleTap`, and `.onLongPress` safely, looking up their unique `shared_preferences` flutter bindings.
+- **Step 2:** Refactor `PanelOverlayView.kt`. Introduce a declarative `renderPage()` function that dynamically populates `grid.addView` targets instantly based on a `currentPage` index.
+- **Step 3:** Inject interactive pagination UI dots below the grid inside the Panel to allow users to cleanly tap to swap the 9-icon payload pages seamlessly without mounting a new window context!
 
 **3. Change:**
-(Implementation processed remotely via LLM)
+(Processed Remotely)
