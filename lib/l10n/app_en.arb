@@ -1,0 +1,8 @@
+{
+    "@@locale": "en",
+    "appTitle": "Assistive Touch",
+    "homeScreenStart": "Start Assistive Touch",
+    "homeScreenStop": "Stop Assistive Touch",
+    "settingsTitle": "Settings",
+    "permissionGuidanceMsg": "Allow Display over other apps to show the floating button."
+}

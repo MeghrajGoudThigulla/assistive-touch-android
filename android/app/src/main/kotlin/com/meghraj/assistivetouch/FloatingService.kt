@@ -76,6 +76,10 @@ class FloatingService : Service() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
+        val prefs = applicationContext.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val savedX = prefs.getFloat("flutter.overlay_x", 0f).toInt()
+        val savedY = prefs.getFloat("flutter.overlay_y", 500f).toInt()
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -84,8 +88,8 @@ class FloatingService : Service() {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = lastX
-            y = lastY
+            x = if (lastX != 0) lastX else savedX
+            y = if (lastY != 500) lastY else savedY
         }
 
         floatingView = FloatingButtonView(this, windowManager!!, params)

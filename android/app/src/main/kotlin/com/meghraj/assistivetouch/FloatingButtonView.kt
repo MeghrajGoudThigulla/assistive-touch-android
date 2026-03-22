@@ -139,6 +139,15 @@ class FloatingButtonView(
             layoutParams.x = animation.animatedValue as Int
             windowManager.updateViewLayout(this@FloatingButtonView, layoutParams)
         }
+        animator.addListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+                prefs.edit()
+                    .putFloat("flutter.overlay_x", layoutParams.x.toFloat())
+                    .putFloat("flutter.overlay_y", layoutParams.y.toFloat())
+                    .apply()
+            }
+        })
         animator.start()
     }
 }
