@@ -34,7 +34,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     await prefs.setString('preferred_language', _selectedLanguage);
     
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/permissions');
     }
   }
 

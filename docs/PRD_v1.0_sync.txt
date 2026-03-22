@@ -1,0 +1,297 @@
+AssistiveTouch_PRD_v1.0
+
+Assistive Touch PRD v1.0  |  CONFIDENTIAL
+
+PRODUCT REQUIREMENTS DOCUMENT
+
+Assistive Touch: Quick Touch Control
+
+Flutter + Kotlin Native Overlay Application
+
+1.5 Competitive Analysis & Failure Points
+
+UI/UX Failures:
+
+Icons are hard to see on screen, apps must be restarted every time you turn on your device, and have ridiculous ads for each keystroke to setup or alter the menu.
+Several have icons hard to see on your screen — poor contrast, no dark mode done properly.
+Bugs including the control dock disappearing when the keyboard is opened, missing overlay functions, and the assistive ball disappearing when going to the home screen.
+The Settings option on Assistive Touch doesn't open the app configuration — instead it opens quick controls — confusing UX.
+Every competitor UI looks like it was built in 2017. None use Material 3.
+
+Performance Failures:
+
+If the assistive touch is idle for 4 minutes it just disappears — ForegroundService instability.
+Only supports Android versions 4.1 and up — outdated targeting.
+
+Trust/Privacy Failures:
+
+It's not clear exactly where the app stores its downloaded data.
+This app requires you to approve a lot of permissions, which some users might be hesitant about.
+No competitor clearly explains what each permission does before asking for it.
+
+Version 1.0  |  Status: DRAFT  |  Platform: Android
+
+Revision History
+
+Date		Version		Change
+2026-03-21	1.0		Initial Draft
+
+Author: Thigulla Meghraj Goud  |  Contact: meghraj.thigulla@gmail.com
+
+CONFIDENTIAL — INTERNAL USE ONLY
+
+1. Executive Summary
+
+Assistive Touch is a zero-login Android application that renders a persistent floating overlay button and a customisable 2-page action panel. The app gives users one-tap access to system navigation, device controls, and quick-action tools from anywhere on screen without interrupting their workflow.
+
+The product is split into two runtime layers:
+
+Flutter (Dart) — configuration UI, localisation, and persistent settings.
+Kotlin native — foreground service, WindowManager overlay, gesture detection, and action execution.
+
+Design Principle: Every action in the panel must be explicitly triggered by the user. The app never executes actions automatically, silently, or in the background.
+
+1.1  Document Metadata
+
+Field			Value
+Document Version	1.0
+Product Name		Assistive Touch: Quick Touch Control
+Status			Draft — Pending Engineering Sign-off
+Planned Release		Internal Alpha (v1.0)
+Platform		Android (Kotlin + Flutter)
+Min SDK			API 24 (Android 7.0)
+Target SDK		Latest available in toolchain
+Author			Thigulla Meghraj Goud
+Contact			meghraj.thigulla@gmail.com
+Delivery Timeline	4 Weeks (see Milestones)
+
+2. Goals & Non-Goals
+2.1  Goals
+Provide a reliable, always-visible floating overlay button that works across all foreground apps.
+Allow deep customisation of panel actions, floating button icon, size, opacity, and gesture bindings.
+Deliver a clean, localised first-launch experience with simple, 2-3 screen onboarding and language selection.
+Ensure transparent permission handling — every sensitive permission must be explained in-app before redirecting to system settings.
+Target Play Store approval with zero policy violations on first submission.
+App should feel instant (<100ms interaction latency) and lightweight (<50MB RAM usage).
+
+2.2  Non-Goals (v1 Scope)
+User accounts, login, or cloud sync.
+Remote icon pack downloads or CDN assets.
+Analytics or crash-reporting SDKs (added in a future phase with full Data Safety re-declaration).
+Advertisements.
+Auto-start on device boot.
+Screen recording or screenshot (deferred to v1.1 after Play Store approval is confirmed).
+Macro recording, automation sequences, or auto-click/auto-scroll functionality (permanently out of scope for this product line).
+
+2.3 Design Principles, Competitive Mitigation & Targets
+
+Your Winning Edge — Competitive Mitigation:
+
+Floating button disappears when keyboard opens or after idle — your ForegroundService must never drop.
+Icons are invisible against real wallpapers — your overlay must always be legible on any background using contrast-adaptive rendering.
+Settings screen is confusing — your app has a clear separation between in-app config and overlay quick controls.
+Ugly, outdated UI from 2015-2018 — you build with Material 3, dark-first, with micro-animations.
+Excessive unexplained permission requests — you explain every permission before asking, in plain language.
+Ads interrupting every setup step — your app is completely ad-free.
+App needs manual restart after reboot — your ForegroundService handles this gracefully with a persistent notification.
+
+UI/UX EXCELLENCE RULES:
+
+1. Visual polish — Dark-first design, always. Every screen uses this exact palette: Background gradient: #0F172A → #020617, Floating button: #FFFFFF with subtle inner gradient, Accent: #3B82F6, Secondary text: #94A3B8, Shadow: rgba(0,0,0,0.25). Use flutter_animate for all transitions.
+2. Overlay legibility — The floating button must always be visible regardless of wallpaper. Implement a dynamic shadow/glow ring that adapts — white button gets dark shadow on light backgrounds, and a subtle blue glow on dark backgrounds. This is the #1 visual differentiator.
+3. Onboarding clarity — Permission explanation screens must be the most honest and clear of any app in this category. Each permission gets: what it does, what it does NOT do, a visual icon, and a single CTA. No dark patterns.
+4. Zero friction customisation — Panel slot editing opens a bottom sheet with a searchable action list grouped by category (Navigation / System / Media / Display).
+5. Micro-interactions — Every user action gets feedback: haptic on panel open, spring animation on button drag-snap, ripple on slot selection, smooth fade on settings toggles.
+
+PERFORMANCE TARGETS — Hard Limits:
+
+Interaction latency: under 100ms tap-to-action
+Memory footprint: under 50MB RAM persistent
+ForegroundService: must never drop — handle onTaskRemoved, onDestroy, and OEM battery kill signals
+Use const constructors everywhere possible
+No setState in large widget trees — use localised state only
+Overlay button must remain visible when soft keyboard opens — handle WindowInsets in OverlayController.kt
+
+3. Target Platform & Compatibility
+3.1  Platform Matrix
+
+Dimension		Specification
+OS			Android 7.0+ (API 24+)
+Recommended Min SDK	API 24 (Android 7.0) — or API 26 for fewer background limits
+Target SDK		Latest available (update per Google policy requirements)
+UI Shell		Flutter (Dart) — Configuration, settings, localisation
+Overlay & Actions	Native Android (Kotlin) — ForegroundService + WindowManager
+Architecture Pattern	Flutter ↔ Kotlin bridge via MethodChannel / EventChannel
+
+3.2  OEM-Specific Notes
+Samsung, Xiaomi, Oppo, Vivo — aggressive battery managers may kill background services. Overlay must run inside a ForegroundService with a persistent notification.
+Android 12+ — overlay windows must set FLAG_NOT_FOCUSABLE where appropriate; WindowManager params must handle insets changes.
+Android 13/14 — notification permission (POST_NOTIFICATIONS) must be requested at runtime for the foreground service notification.
+Wi-Fi, Mobile Data, Airplane Mode, Location toggles — restricted by Android policy since API 29+. Fallback must open the relevant system Settings panel rather than toggling directly.
+
+4. User Journeys
+Journey A — First Launch
+Trigger: App opened for the very first time (locale preference not saved).
+1. App launches → Language Selection screen appears.
+2. User selects language → locale saved, UI immediately re-renders in chosen language.
+3. User lands on the Home screen.
+4. Subsequent launches skip Language Selection and go directly to Home.
+
+Journey B — Customise Panel
+Trigger: User opens Customize Touch Panel from Home.
+1. User views 2-page 3x3 grid (Main / Setting).
+2. User taps a slot → Select Action bottom sheet appears.
+3. User picks action → slot updates icon and label.
+4. Configuration auto-persists; overlay panel reflects change immediately if running.
+
+Journey C — Customise Floating Icon
+Trigger: User opens Customize App Icon from Home.
+1. Bundled icon grid displayed (4-column layout).
+2. User selects icon → selection highlighted.
+3. User taps Save (✓) → iconId persisted.
+4. If overlay is running, icon updates live; otherwise on next overlay start.
+
+Journey D — Settings
+Trigger: User opens Settings from Home.
+1. User changes any setting (gesture / size / opacity / theme / battery info).
+2. Change applies instantly to the running overlay where applicable.
+3. All settings persist across app restarts.
+
+5. Feature Requirements
+
+Note: Emoji section headers (📦, 🔐, ♿, 🟡, 🔔, 📄, 🧾, 🖼️, 🧪, 🚀) are included for readability within the PRD only; they must be manually removed before copy-pasting this content into non-Markdown environments like the Play Console or .docx exports.
+
+Feature 1 — Language Selection (First Launch)
+Description: On first startup, the user must select the app display language. The screen never appears again once a selection is saved.
+Requirements:
+- Show language selection screen on first launch only.
+- Include major Indian and world languages.
+- Save selected locale immediately.
+Acceptance Criteria:
+AC-1.1: If locale is not saved, language screen appears on launch.
+AC-1.2: After selection, UI language changes immediately.
+AC-1.3: Relaunching navigates directly to Home.
+
+Feature 2 — Home Screen
+Description: The Home screen is the hub showing three primary buttons and a footer email.
+UI Layout:
+Button 1: Customize Touch Panel
+Button 2: Customize App Icon
+Button 3: Settings
+Footer: meghraj.thigulla@gmail.com
+Acceptance Criteria:
+AC-2.1: Buttons navigate correctly.
+AC-2.2: Email is visible on all screens.
+AC-2.3: Tapping email launches mail client.
+
+Feature 3 — Customize Touch Panel
+Description: Panel customisation for 2 pages of 3x3 grids.
+Supported Actions (v1): none, home, back, recents, power_dialog, notifications, lock, wifi, bluetooth, location, airplane, auto_rotate, mobile_data, volume_panel, volume_up, volume_down, sound_mode, flashlight, brightness, favorite, app_drawer, panel_page_main, panel_page_setting, open_settings.
+Data Model: { "panel": { "main": [9 actionIds], "setting": [9 actionIds] } }
+Acceptance Criteria:
+AC-3.1: User can switch between pages and edit slots.
+AC-3.2: Updating action reflects immediately.
+AC-3.3: Configuration persists after restart.
+AC-3.4: Overlay panel reflects saved config.
+AC-3.5: 'none' action renders empty.
+
+Feature 4 — Customize App Icon
+Description: Select the floating button icon from bundled assets.
+Acceptance Criteria:
+AC-4.1: Selection is highlighted.
+AC-4.2: Save persists iconId.
+AC-4.3: Overlay updates live if running.
+AC-4.4: Next start uses saved icon.
+
+Feature 5 — Settings
+Description: Controls behavior, gestures, and visual appearance.
+Settings Inventory: Background Color, Single Tap, Double Tap, Long Press, Animation Speed, Button Size, Button Opacity, Battery Info, Dark Mode.
+Acceptance Criteria:
+AC-5.1: Settings persist after restart.
+AC-5.2: Size/opacity apply live.
+AC-5.3: Dark mode applies instantly.
+AC-5.4: Missing permissions prompt guidance without crashing.
+
+6. Core Identifiers
+Field				Value
+Project Root Folder		assistive-touch-android
+GitHub Repository		assistive-touch-android
+Android Package Name		com.meghraj.assistivetouch
+MethodChannel Name		com.meghraj.assistivetouch/methods
+EventChannel Name		com.meghraj.assistivetouch/events
+Foreground Channel ID		assistive_touch_foreground
+
+6. Architecture
+6.1  High-Level Overview
+Layer			Responsibility
+Flutter (Dart)		Screens, localisation, SharedPreferences persistence, config editing, permission guidance
+Kotlin Native		ForegroundService, WindowManager overlay lifecycle, gesture detection, action execution, EventChannel emissions
+Bridge			MethodChannel (Flutter → Kotlin commands) + EventChannel (Kotlin → Flutter events)
+
+6.2  Kotlin Native Components
+- FloatingService: Hosts overlay lifecycle.
+- OverlayController: Manages WindowManager views.
+- FloatingButtonView: Custom View for drag/gestures.
+- PanelOverlayView: 3x3 grid logic.
+- ActionExecutor: Executes actions.
+- AssistiveAccessibilityService: Executes global actions.
+- DeviceAdminReceiver: Implements screen lock.
+- BatteryMonitor: Tracks battery changes.
+
+6.3  MethodChannel Contract (Flutter → Kotlin)
+Methods: overlay.start(), overlay.stop(), overlay.updateConfig({config}), overlay.executeAction({actionId}), permissions.getState(), permissions.openOverlaySettings(), permissions.openAccessibilitySettings(), deviceAdmin.requestActivation().
+
+6.4  EventChannel Contract (Kotlin → Flutter)
+Events: permissionStateChanged, overlayStateChanged, batteryInfo, error.
+
+7. Permissions & Fallbacks
+Features requiring permissions: Floating overlay (SYSTEM_ALERT_WINDOW), Service (FOREGROUND_SERVICE), Navigation (Accessibility), Lock (Device Admin), Flashlight (Camera), System Toggles (restricted, fallback to Settings), Battery (broadcast), Notification (POST_NOTIFICATIONS).
+All must fail gracefully when denied.
+
+8. Data Model
+8.1  Config Schema (shared_preferences): locale, panel.main, panel.setting, floatingButton.iconId, floatingButton.size, floatingButton.opacity, ui.backgroundColor, ui.darkMode, gesture.singleTap, gesture.doubleTap, gesture.longPress, animation.speed, features.showBatteryInfo.
+8.2  Storage Strategy: v1 is local only (shared_preferences).
+
+9. Error Handling & Edge Cases
+Scenarios handled: Revoked permissions, Accessiblity disabled, Device Admin revoked, Service killed by OS, Rotation repositioning, Swiped from Recents, Action assigned to ungranted permission slot.
+
+10. QA Test Plan
+10.1  Device Test Matrix: Stock Emulator (8.0-14.0), Samsung (10.0+), Xiaomi/Oppo (11.0+).
+10.2  Functional Test Cases: Covers Installation, Home, Panel Customisation, Icon Customisation, Settings, Permissions, Stability, and Performance (latency < 100ms, RAM < 50MB).
+
+11. Play Store Compliance
+11.1  Accessibility Service Declaration: Verbatim text for Play Console.
+11.2  Explanation Screen: Mandatory in-app prompt.
+11.3  Data Safety: Declare no collection/sharing.
+11.4  Permissions Audit: Audit for required vs. prohibited.
+11.5  Mitigations: Privacy Policy, Data Safety, accessibility clarity.
+11.6  Store Listing Description: Policy-optimised copy including descriptions and simplified permissions explanation.
+
+12. Privacy Policy Template: Detailed policy for GitHub Pages hosting.
+
+13. Milestones & Delivery Plan
+Week 1: Flutter UI & Persistence
+Week 2: Overlay MVP & Bridge
+Week 3: Actions & Gestures
+Week 4: Admin, Battery & Polish
+
+Definition of Done (MVP): Stable overlay, permission safety, persistence, reliable gestures, and Play Store compliance.
+
+14. Future Roadmap
+14.1 Safe Expansions: More pages, Advanced customization, Smart behavior, Local backup, Haptics.
+14.2 Medium-Risk: Screenshot, App launcher, Floating widgets.
+14.3 Out of Scope: Automation/Macros, Screen monitoring, Invisible execution.
+14.4 Monetization: Recommended Free vs Paid Split (Pro Version for advanced customization, premium icons, gestures, profiles).
+
+15. Branding, ASO & Icon Design
+ASO: Primary keywords (assistive touch, easy touch, etc.).
+Icon Design: Dark gradient background, white button with subtle shadow.
+Growth: Prompt rating after usage, highlight ad-free nature.
+
+16. Play Store Release Checklist: Comprehensive checklist for Build, Permissions, Accessibility, Privacy, and final QA.
+
+17. Risk Strategy & Long-Term Outlook
+Heatmap for roadmap features (UI lowest risk, monitoring extreme risk).
+Long-term Strategy: Positioning as a Customizable Assistive Navigation Tool, not an Automation Engine.
+
+Thigulla Meghraj Goud  |  meghraj.thigulla@gmail.com  |  Page of

@@ -3,8 +3,22 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/app_scaffold.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isServiceRunning = false;
+  
+  void _toggleService() {
+    // Phase 2 will call MethodChannel to start/stop the service layer.
+    setState(() {
+      _isServiceRunning = !_isServiceRunning;
+    });
+  }
 
   Future<void> _launchEmail() async {
     final Uri emailLaunchUri = Uri(
@@ -24,6 +38,54 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: InkWell(
+              onTap: _toggleService,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                     colors: _isServiceRunning 
+                        ? [Colors.green.shade600, Colors.green.shade800]
+                        : [const Color(0xFF3B82F6), const Color(0xFF2563EB)], // Blue 500 to Blue 600
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x40000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      _isServiceRunning ? Icons.power_settings_new : Icons.play_circle_filled,
+                      size: 48,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _isServiceRunning ? 'Stop Assistive Touch' : 'Start Assistive Touch',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _isServiceRunning ? 'Service is active' : 'Tap to enable floating overlay',
+                      style: const TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ).animate().fade().scale(curve: Curves.easeOutBack),
+          const SizedBox(height: 24),
           _buildNavButton(
             context, 
             'Customize Touch Panel', 

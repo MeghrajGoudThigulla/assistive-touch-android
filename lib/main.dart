@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_selection_screen.dart';
+import 'screens/permission_guidance_screen.dart';
 import 'screens/customize_panel_screen.dart';
 import 'screens/customize_icon_screen.dart';
 import 'screens/settings_screen.dart';
@@ -10,14 +11,24 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final hasSelectedLang = prefs.getBool('has_selected_language') ?? false;
+  final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
   
-  runApp(AssistiveTouchApp(hasSelectedLang: hasSelectedLang));
+  String initialRoute = '/language';
+  if (hasSelectedLang) {
+    if (onboardingCompleted) {
+      initialRoute = '/home';
+    } else {
+      initialRoute = '/permissions';
+    }
+  }
+
+  runApp(AssistiveTouchApp(initialRoute: initialRoute));
 }
 
 class AssistiveTouchApp extends StatelessWidget {
-  final bool hasSelectedLang;
+  final String initialRoute;
 
-  const AssistiveTouchApp({super.key, required this.hasSelectedLang});
+  const AssistiveTouchApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +53,10 @@ class AssistiveTouchApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      initialRoute: hasSelectedLang ? '/home' : '/language',
+      initialRoute: initialRoute,
       routes: {
         '/language': (context) => const LanguageSelectionScreen(),
+        '/permissions': (context) => const PermissionGuidanceScreen(),
         '/home': (context) => const HomeScreen(),
         '/customize_panel': (context) => const CustomizePanelScreen(),
         '/customize_icon': (context) => const CustomizeIconScreen(),
