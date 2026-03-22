@@ -38,6 +38,8 @@ class AssistiveAccessibilityService : AccessibilityService() {
             "notifications" -> performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
             "power_dialog" -> performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
             "quick_settings" -> performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+            "lock_screen" -> if (android.os.Build.VERSION.SDK_INT >= 28) performGlobalAction(8) else false // 8 is GLOBAL_ACTION_LOCK_SCREEN
+            "screenshot" -> if (android.os.Build.VERSION.SDK_INT >= 30) performGlobalAction(9) else false // 9 is GLOBAL_ACTION_TAKE_SCREENSHOT
             // Other actions like swipe gestures will map here as needed
             else -> false
         }

@@ -1,12 +1,12 @@
-# Phase 3 - Step 3: Gestures & Multi-Page Menu
+# Phase 4: Device Restrictions & Hardware
 
 **1. Understand:**
-To finish off the critical Phase 3 PRD goals, the Assistive UI needs robust interaction capabilities beyond a single tap. The floating button should recognize double-taps and long-presses based securely on user configs. Concurrently, the 3x3 menu needs to handle its overflow constraints. Since AssistiveTouch has up to 18 native targets mapped (Main + Setting), the PanelOverlayView must elegantly transition between Page 1 and Page 2.
+To map the remaining actions natively without relying on heavy external Flutter packages, we dive into Android's core hardware subsystems: `AudioManager` (Volume Control), `CameraManager` (Flashlight toggle), and `DevicePolicyManager` (Legacy screen lock fallback). Simultaneously, modern Android provides native Accessibility APIs for screenshots and lock screen interactions, allowing us to leverage our `AssistiveAccessibilityService` cleanly.
 
 **2. Plan:**
-- **Step 1:** Erase simple `.setOnClickListener` logic in `FloatingButtonView.kt` and integrate a native Android `GestureDetector.SimpleOnGestureListener`. Delegate `.onSingleTapConfirmed`, `.onDoubleTap`, and `.onLongPress` safely, looking up their unique `shared_preferences` flutter bindings.
-- **Step 2:** Refactor `PanelOverlayView.kt`. Introduce a declarative `renderPage()` function that dynamically populates `grid.addView` targets instantly based on a `currentPage` index.
-- **Step 3:** Inject interactive pagination UI dots below the grid inside the Panel to allow users to cleanly tap to swap the 9-icon payload pages seamlessly without mounting a new window context!
+- **Step 1:** Establish `DeviceAdminReceiver.kt`. Provide an XML policy that specifically sets `<force-lock />` constraints so Android allows our service to trigger screen shutoff. Register it in `AndroidManifest.xml`.
+- **Step 2:** Upgrade `AssistiveAccessibilityService.kt` to securely catch and proxy `"lock_screen"` (`GLOBAL_ACTION_LOCK_SCREEN` on API 28+) and `"screenshot"` (`GLOBAL_ACTION_TAKE_SCREENSHOT` on API 30+).
+- **Step 3:** Overhaul `ActionExecutor.kt` to bind `AudioManager` to media volume adjustments, build an internal state tracker for the `CameraManager` toggle to support flashlights natively, and establish the API version fallback sequence if modern global actions fail.
 
 **3. Change:**
-(Processed Remotely)
+(Implementation processed remotely via LLM)
