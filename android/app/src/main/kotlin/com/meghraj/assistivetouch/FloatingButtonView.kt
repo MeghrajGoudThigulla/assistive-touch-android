@@ -68,6 +68,9 @@ class FloatingButtonView(
 
         iconView = ImageView(context).apply {
             when(iconId) {
+                "assistive_orb" -> setImageResource(R.drawable.assistive_orb)
+                "floating_control_core" -> setImageResource(R.drawable.floating_control_core)
+                "touch_pulse" -> setImageResource(R.drawable.touch_pulse)
                 "circle" -> setImageResource(android.R.drawable.presence_online)
                 "star" -> setImageResource(android.R.drawable.btn_star_big_on)
                 "default" -> setImageResource(android.R.drawable.ic_menu_add)

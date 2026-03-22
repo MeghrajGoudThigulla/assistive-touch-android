@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/app_scaffold.dart';
 import '../services/overlay_channel.dart';
 
@@ -15,6 +16,9 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
   String _selectedIcon = 'default';
   
   final List<Map<String, dynamic>> _icons = [
+    {'id': 'assistive_orb', 'asset': 'assets/icons/assistive_orb.svg', 'label': 'Orb'},
+    {'id': 'floating_control_core', 'asset': 'assets/icons/floating_control_core.svg', 'label': 'Core'},
+    {'id': 'touch_pulse', 'asset': 'assets/icons/touch_pulse.svg', 'label': 'Pulse'},
     {'id': 'default', 'icon': Icons.touch_app, 'label': 'Default'},
     {'id': 'circle', 'icon': Icons.circle, 'label': 'Circle'},
     {'id': 'star', 'icon': Icons.star, 'label': 'Star'},
@@ -97,11 +101,18 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            iconData['icon'], 
-                            size: 48,
-                            color: Colors.white,
-                          ),
+                          iconData['asset'] != null
+                              ? SvgPicture.asset(
+                                  iconData['asset'],
+                                  width: 48,
+                                  height: 48,
+                                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                                )
+                              : Icon(
+                                  iconData['icon'], 
+                                  size: 48,
+                                  color: Colors.white,
+                                ),
                           const SizedBox(height: 12),
                           Text(
                             iconData['label'],

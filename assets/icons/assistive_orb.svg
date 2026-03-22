@@ -1,0 +1,46 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    
+    <radialGradient id="circleGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </radialGradient>
+    
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="rgba(0,0,0,0.25)"/>
+    </filter>
+    
+    <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  
+  <!-- Segmented blue ring -->
+  <g filter="url(#blueGlow)" opacity="0.8">
+    <path d="M 256 126 A 130 130 0 0 1 368 188" fill="none" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 168 324 A 130 130 0 0 1 144 188" fill="none" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 368 324 A 130 130 0 0 1 344 324" fill="none" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  
+  <!-- White floating button -->
+  <circle cx="256" cy="256" r="120" fill="url(#circleGrad)" filter="url(#shadow)"/>
+  
+  <!-- Three dots -->
+  <g opacity="0.1">
+    <circle cx="256" cy="226" r="8" fill="#1F2937"/>
+    <circle cx="232" cy="256" r="8" fill="#1F2937"/>
+    <circle cx="280" cy="256" r="8" fill="#1F2937"/>
+  </g>
+</svg>
