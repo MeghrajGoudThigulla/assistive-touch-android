@@ -16,15 +16,26 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
   String _selectedIcon = 'default';
   
   final List<Map<String, dynamic>> _icons = [
-    {'id': 'assistive_orb', 'asset': 'assets/icons/assistive_orb.svg', 'label': 'Orb'},
-    {'id': 'floating_control_core', 'asset': 'assets/icons/floating_control_core.svg', 'label': 'Core'},
-    {'id': 'touch_pulse', 'asset': 'assets/icons/touch_pulse.svg', 'label': 'Pulse'},
-    {'id': 'default', 'icon': Icons.touch_app, 'label': 'Default'},
-    {'id': 'circle', 'icon': Icons.circle, 'label': 'Circle'},
-    {'id': 'star', 'icon': Icons.star, 'label': 'Star'},
-    {'id': 'diamond', 'icon': Icons.diamond, 'label': 'Diamond'},
-    {'id': 'bolt', 'icon': Icons.bolt, 'label': 'Bolt'},
-    {'id': 'favorite', 'icon': Icons.favorite, 'label': 'Heart'},
+    {'id': 'icon_default', 'asset': 'assets/icons/icon_default.png', 'label': 'Minimal'},
+    {'id': 'icon_glow_strong', 'asset': 'assets/icons/icon_glow_strong.png', 'label': 'Glow Max'},
+    {'id': 'icon_glow_soft', 'asset': 'assets/icons/icon_glow_soft.png', 'label': 'Glow Min'},
+    {'id': 'icon_minimal_border', 'asset': 'assets/icons/icon_minimal_border.png', 'label': 'Border'},
+    {'id': 'icon_clean_border', 'asset': 'assets/icons/icon_clean_border.png', 'label': 'Clean'},
+    {'id': 'icon_frosted_ring', 'asset': 'assets/icons/icon_frosted_ring.png', 'label': 'Frosted'},
+    {'id': 'icon_glass_minimal', 'asset': 'assets/icons/icon_glass_minimal.png', 'label': 'Glass'},
+    {'id': 'icon_inverted', 'asset': 'assets/icons/icon_inverted.png', 'label': 'Inverted'},
+    {'id': 'icon_flat_dark', 'asset': 'assets/icons/icon_flat_dark.png', 'label': 'Flat Dark'},
+    {'id': 'icon_premium_opal', 'asset': 'assets/icons/icon_premium_opal.png', 'label': 'Opal'},
+    {'id': 'icon_panel_9dot', 'asset': 'assets/icons/icon_panel_9dot.png', 'label': '9-Dot'},
+    {'id': 'icon_panel_flat', 'asset': 'assets/icons/icon_panel_flat.png', 'label': 'Panel'},
+    {'id': 'icon_panel_4dot', 'asset': 'assets/icons/icon_panel_4dot.png', 'label': '4-Dot'},
+    {'id': 'icon_ripple_2ring', 'asset': 'assets/icons/icon_ripple_2ring.png', 'label': '2-Ring'},
+    {'id': 'icon_ripple_glow', 'asset': 'assets/icons/icon_ripple_glow.png', 'label': 'Ripple'},
+    {'id': 'icon_squircle_dot', 'asset': 'assets/icons/icon_squircle_dot.png', 'label': 'Squircle'},
+    {'id': 'icon_home', 'asset': 'assets/icons/icon_home.png', 'label': 'Home'},
+    {'id': 'icon_power', 'asset': 'assets/icons/icon_power.png', 'label': 'Power'},
+    {'id': 'icon_menu', 'asset': 'assets/icons/icon_menu.png', 'label': 'Menu'},
+    {'id': 'icon_menu_3d', 'asset': 'assets/icons/icon_menu_3d.png', 'label': 'Menu 3D'},
   ];
 
   @override
@@ -102,11 +113,10 @@ class _CustomizeIconScreenState extends State<CustomizeIconScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           iconData['asset'] != null
-                              ? SvgPicture.asset(
+                              ? Image.asset(
                                   iconData['asset'],
                                   width: 48,
                                   height: 48,
-                                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)
                                 )
                               : Icon(
                                   iconData['icon'], 
