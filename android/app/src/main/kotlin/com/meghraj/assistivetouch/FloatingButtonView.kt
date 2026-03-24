@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.view.animation.OvershootInterpolator
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -146,7 +147,8 @@ class FloatingButtonView(
         }
 
         val animator = ValueAnimator.ofInt(currentX, targetX)
-        animator.duration = 200
+        animator.duration = 400
+        animator.interpolator = OvershootInterpolator(1.2f)
         animator.addUpdateListener { animation ->
             layoutParams.x = animation.animatedValue as Int
             windowManager.updateViewLayout(this@FloatingButtonView, layoutParams)
