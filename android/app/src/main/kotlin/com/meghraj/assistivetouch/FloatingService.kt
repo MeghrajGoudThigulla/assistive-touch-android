@@ -16,6 +16,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.app.PendingIntent
 
 class FloatingService : Service() {
     companion object {
@@ -32,9 +34,25 @@ class FloatingService : Service() {
     private var lastX = 0
     private var lastY = 500
 
+    private val stopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "STOP_OVERLAY_ACTION") {
+                stopSelf()
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         instance = this
+        
+        val filter = android.content.IntentFilter("STOP_OVERLAY_ACTION")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(stopReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(stopReceiver, filter)
+        }
+
         createNotificationChannel()
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -56,6 +74,7 @@ class FloatingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(stopReceiver)
         cleanupOverlay()
         closePanel()
         instance = null
@@ -158,10 +177,22 @@ class FloatingService : Service() {
     }
 
     private fun createNotification(): Notification {
+        val stopIntent = Intent("STOP_OVERLAY_ACTION")
+        val stopPendingIntent = PendingIntent.getBroadcast(
+            this, 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        val openAppIntent = Intent(this, MainActivity::class.java)
+        val openAppPendingIntent = PendingIntent.getActivity(
+            this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Assistive Touch")
-            .setContentText("Tap to open settings")
+            .setContentTitle("Assistive Touch is active")
+            .setContentText("Tap to open settings or manage the active overlay.")
             .setSmallIcon(android.R.drawable.ic_menu_edit) 
+            .setContentIntent(openAppPendingIntent)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop Overlay", stopPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

@@ -3,6 +3,7 @@ package com.meghraj.assistivetouch
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.os.Build
@@ -69,6 +70,12 @@ object ActionExecutor {
             }
             "open_menu" -> {
                 FloatingService.instance?.openPanel()
+            }
+            "open_settings" -> {
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                launchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                context.startActivity(launchIntent)
+                FloatingService.instance?.closePanel()
             }
             "none" -> {
                 // Deliberate no-op

@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.view.animation.OvershootInterpolator
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -68,20 +69,29 @@ class FloatingButtonView(
 
         iconView = ImageView(context).apply {
             when(iconId) {
-                "assistive_orb" -> setImageResource(R.drawable.assistive_orb)
-                "floating_control_core" -> setImageResource(R.drawable.floating_control_core)
-                "touch_pulse" -> setImageResource(R.drawable.touch_pulse)
-                "circle" -> setImageResource(android.R.drawable.presence_online)
-                "star" -> setImageResource(android.R.drawable.btn_star_big_on)
-                "default" -> setImageResource(android.R.drawable.ic_menu_add)
-                else -> setImageResource(android.R.drawable.ic_menu_add)
+                "icon_default" -> setImageResource(R.drawable.icon_default)
+                "icon_glow_strong" -> setImageResource(R.drawable.icon_glow_strong)
+                "icon_glow_soft" -> setImageResource(R.drawable.icon_glow_soft)
+                "icon_minimal_border" -> setImageResource(R.drawable.icon_minimal_border)
+                "icon_clean_border" -> setImageResource(R.drawable.icon_clean_border)
+                "icon_frosted_ring" -> setImageResource(R.drawable.icon_frosted_ring)
+                "icon_glass_minimal" -> setImageResource(R.drawable.icon_glass_minimal)
+                "icon_inverted" -> setImageResource(R.drawable.icon_inverted)
+                "icon_flat_dark" -> setImageResource(R.drawable.icon_flat_dark)
+                "icon_premium_opal" -> setImageResource(R.drawable.icon_premium_opal)
+                "icon_panel_9dot" -> setImageResource(R.drawable.icon_panel_9dot)
+                "icon_panel_flat" -> setImageResource(R.drawable.icon_panel_flat)
+                "icon_panel_4dot" -> setImageResource(R.drawable.icon_panel_4dot)
+                "icon_ripple_2ring" -> setImageResource(R.drawable.icon_ripple_2ring)
+                "icon_ripple_glow" -> setImageResource(R.drawable.icon_ripple_glow)
+                "icon_squircle_dot" -> setImageResource(R.drawable.icon_squircle_dot)
+                "icon_home" -> setImageResource(R.drawable.icon_home)
+                "icon_power" -> setImageResource(R.drawable.icon_power)
+                "icon_menu" -> setImageResource(R.drawable.icon_menu)
+                "icon_menu_3d" -> setImageResource(R.drawable.icon_menu_3d)
+                else -> setImageResource(R.drawable.icon_default)
             }
             alpha = opacity
-            
-            val shape = GradientDrawable()
-            shape.shape = GradientDrawable.OVAL
-            shape.setColor(Color.parseColor("#3B82F6"))
-            background = shape
         }
 
         addView(iconView, LayoutParams(sizePx, sizePx))
@@ -137,7 +147,8 @@ class FloatingButtonView(
         }
 
         val animator = ValueAnimator.ofInt(currentX, targetX)
-        animator.duration = 200
+        animator.duration = 400
+        animator.interpolator = OvershootInterpolator(1.2f)
         animator.addUpdateListener { animation ->
             layoutParams.x = animation.animatedValue as Int
             windowManager.updateViewLayout(this@FloatingButtonView, layoutParams)
