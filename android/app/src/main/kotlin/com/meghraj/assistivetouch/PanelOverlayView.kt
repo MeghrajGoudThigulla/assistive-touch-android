@@ -6,6 +6,8 @@ import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.HapticFeedbackConstants
+import android.animation.ValueAnimator
 import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -78,6 +80,20 @@ class PanelOverlayView(context: Context, private val onClose: () -> Unit) : Fram
         }
         
         addView(panelContainer, containerParams)
+        
+        panelContainer.alpha = 0f
+        panelContainer.scaleX = 0.8f
+        panelContainer.scaleY = 0.8f
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        animator.duration = 250
+        animator.interpolator = android.view.animation.OvershootInterpolator(1.2f)
+        animator.addUpdateListener { anim ->
+            val v = anim.animatedValue as Float
+            panelContainer.alpha = v
+            panelContainer.scaleX = 0.8f + (0.2f * v)
+            panelContainer.scaleY = 0.8f + (0.2f * v)
+        }
+        animator.start()
     }
 
     private fun renderPage() {
@@ -134,6 +150,7 @@ class PanelOverlayView(context: Context, private val onClose: () -> Unit) : Fram
             
             if (actionId != "none") {
                 setOnClickListener {
+                    it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     onClose()
                     ActionExecutor.execute(context, actionId)
                 }
