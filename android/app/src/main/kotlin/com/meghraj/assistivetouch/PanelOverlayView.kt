@@ -18,18 +18,6 @@ import kotlin.math.roundToInt
 
 class PanelOverlayView(context: Context, private val onClose: () -> Unit) : FrameLayout(context) {
 
-    private val page1Actions = listOf(
-        "home", "back", "recents",
-        "notifications", "power_dialog", "quick_settings",
-        "none", "none", "open_settings"
-    )
-
-    private val page2Actions = listOf(
-        "volume_up", "volume_down", "lock_screen",
-        "flashlight", "screenshot", "none",
-        "none", "none", "none"
-    )
-
     private var currentPage = 0
     private val grid: GridLayout
     private val dotsContainer: LinearLayout
@@ -100,10 +88,16 @@ class PanelOverlayView(context: Context, private val onClose: () -> Unit) : Fram
         grid.removeAllViews()
         dotsContainer.removeAllViews()
 
-        val actions = if (currentPage == 0) page1Actions else page2Actions
+        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val prefix = if (currentPage == 0) "flutter.panel.main" else "flutter.panel.setting"
 
         for (i in 0 until 9) {
-            val actionId = actions.getOrNull(i) ?: "none"
+            val defaultVal = if (currentPage == 0) {
+                listOf("home", "back", "recents", "notifications", "power_dialog", "quick_settings", "none", "none", "open_settings").getOrElse(i) { "none" }
+            } else {
+                listOf("volume_up", "volume_down", "lock_screen", "flashlight", "screenshot", "none", "none", "none", "none").getOrElse(i) { "none" }
+            }
+            val actionId = prefs.getString("${prefix}_$i", defaultVal) ?: defaultVal
             val item = createGridItem(actionId, itemSize)
             
             val params = GridLayout.LayoutParams().apply {
